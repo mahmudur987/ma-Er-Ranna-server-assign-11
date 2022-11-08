@@ -51,11 +51,17 @@ async function run() {
         });
         app.put('/reviews/:id', async (req, res) => {
             const id = req.params.id;;
-            const filter = { foodname: foodName };
-
-            console.log(id)
-            // const reviews = await reviewsCollection.find(filter).toArray();
-            // res.send(reviews)
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const comment = req.body.comment;
+            const updateDoc = {
+                $set: {
+                    comment: comment
+                },
+            };
+            console.log(updateDoc)
+            const result = await reviewsCollection.updateOne(filter, updateDoc, options)
+            res.send(result)
         });
         app.get('/myreviews', async (req, res) => {
             const email = req.query.email;
