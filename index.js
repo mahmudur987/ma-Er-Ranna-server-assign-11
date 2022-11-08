@@ -59,7 +59,7 @@ async function run() {
                     comment: comment
                 },
             };
-            console.log(updateDoc)
+            // console.log(updateDoc)
             const result = await reviewsCollection.updateOne(filter, updateDoc, options)
             res.send(result)
         });
