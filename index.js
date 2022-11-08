@@ -21,6 +21,7 @@ async function run() {
         const dishesCollection = database.collection('dishes');
         const reviewsCollection = database.collection('reviews');
         const feturesCollection = database.collection('features');
+        const characterCollection = database.collection('character');
         app.get('/dishes', async (req, res) => {
             const query = {};
             const dishes = await dishesCollection.find(query).limit(3).toArray();
@@ -48,11 +49,30 @@ async function run() {
             const reviews = await reviewsCollection.find(filter).toArray();
             res.send(reviews)
         });
+        app.put('/reviews/:id', async (req, res) => {
+            const id = req.params.id;;
+            const filter = { foodname: foodName };
+
+            console.log(id)
+            // const reviews = await reviewsCollection.find(filter).toArray();
+            // res.send(reviews)
+        });
+        app.get('/myreviews', async (req, res) => {
+            const email = req.query.email;
+            const filter = { email: email };
+            const reviews = await reviewsCollection.find(filter).toArray();
+            res.send(reviews)
+        });
         app.get('/features', async (req, res) => {
             const query = {};
             const features = await feturesCollection.find(query).toArray();
             res.send(features)
-        })
+        });
+        app.get('/characters', async (req, res) => {
+            const query = {};
+            const features = await characterCollection.find(query).toArray();
+            res.send(features)
+        });
 
     }
     finally {
@@ -61,10 +81,9 @@ async function run() {
 }
 run().catch(console.dir);
 
-const services = require('./service.json')
 
-app.get('/services', (req, res) => {
-    res.send(services)
+app.get('/', (req, res) => {
+    res.send('helow world')
 })
 
 app.listen(port, () => {
