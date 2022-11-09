@@ -48,7 +48,7 @@ async function run() {
         app.get('/reviews', async (req, res) => {
             const foodName = req.query.foodname;
             const filter = { foodname: foodName };
-            const reviews = await reviewsCollection.find(filter).toArray();
+            const reviews = await reviewsCollection.find(filter).sort({ date: -1 }).toArray();
             res.send(reviews)
         });
         app.put('/reviews/:id', async (req, res) => {
@@ -76,7 +76,7 @@ async function run() {
         app.get('/myreviews', async (req, res) => {
             const email = req.query.email;
             const filter = { email: email };
-            const reviews = await reviewsCollection.find(filter).toArray();
+            const reviews = await reviewsCollection.find(filter).sort({ date: -1 }).toArray();
             res.send(reviews)
         });
         app.get('/features', async (req, res) => {
