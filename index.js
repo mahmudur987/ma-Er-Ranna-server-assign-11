@@ -24,13 +24,20 @@ async function run() {
         const characterCollection = database.collection('character');
         app.get('/dishes', async (req, res) => {
             const query = {};
-            const dishes = await dishesCollection.find(query).limit(3).toArray();
+            const dishes = await dishesCollection.find(query).sort({ date: - 1 }).limit(3).toArray();
             res.send(dishes)
         });
         app.get('/alldishes', async (req, res) => {
             const query = {};
-            const dishes = await dishesCollection.find(query).toArray();
+            const dishes = await dishesCollection.find(query).sort({ date: -1 }).toArray();
             res.send(dishes)
+        });
+        app.post('/dish', async (req, res) => {
+            const newdish = req.body;
+            newdish.date = new Date(Date.now());
+            console.log(newdish)
+            const result = await dishesCollection.insertOne(newdish);
+            res.send(result)
         });
         app.get('/dishes/:id', async (req, res) => {
             const id = req.params.id;
