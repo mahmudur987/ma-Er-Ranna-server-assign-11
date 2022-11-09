@@ -40,6 +40,8 @@ async function run() {
         });
         app.post('/reviews', async (req, res) => {
             const review = req.body;
+            review.date = new Date(Date.now());
+            // console.log(review)
             const result = await reviewsCollection.insertOne(review);
             res.send(result)
         });
@@ -56,13 +58,21 @@ async function run() {
             const comment = req.body.comment;
             const updateDoc = {
                 $set: {
-                    comment: comment
+                    comment: comment,
+                    date: new Date(Date.now())
                 },
             };
             // console.log(updateDoc)
             const result = await reviewsCollection.updateOne(filter, updateDoc, options)
             res.send(result)
         });
+        app.delete('/reviews/:id', async (req, res) => {
+            const id = req.params.id;;
+            const filter = { _id: ObjectId(id) };
+            console.log(filter)
+            const result = await reviewsCollection.deleteOne(filter);
+            res.send(result)
+        })
         app.get('/myreviews', async (req, res) => {
             const email = req.query.email;
             const filter = { email: email };
