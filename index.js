@@ -3,11 +3,35 @@ const express = require('express')
 const app = express();
 const cors = require('cors');
 require('dotenv').config()
-
+const jwt = require('jsonwebtoken')
 const port = process.env.PORT
 // middlewere
 app.use(cors());
 app.use(express.json());
+
+// json web token verification
+const verifyjwt = (req, res, next) => {
+    const authHead = req.headers.authorization;
+    if (!authHead) {
+        return res.status(401).send({ message: 'in authorized access' })
+    }
+
+    const token = authHead.split(' ')[1];
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (error, decoded) {
+        if (error) {
+            res.status(401).send({ message: 'in authorized access' })
+        }
+        req.decoded = decoded;
+    })
+    // console.log(token)
+    next();
+
+}
+
+
+
+
 
 // mongodb Connection
 const uri = `mongodb+srv://${process.env.USER}:${process.env.PASSWORD}@cluster0.ddhlldi.mongodb.net/?retryWrites=true&w=majority`;
@@ -22,6 +46,18 @@ async function run() {
         const reviewsCollection = database.collection('reviews');
         const feturesCollection = database.collection('features');
         const characterCollection = database.collection('character');
+
+
+        // json web token
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" })
+            res.send({ token });
+        })
+
+
+
+
         app.get('/dishes', async (req, res) => {
             const query = {};
             const dishes = await dishesCollection.find(query).sort({ date: - 1 }).limit(3).toArray();
@@ -80,7 +116,13 @@ async function run() {
             const result = await reviewsCollection.deleteOne(filter);
             res.send(result)
         })
-        app.get('/myreviews', async (req, res) => {
+        app.get('/myreviews', verifyjwt, async (req, res) => {
+            const decoded = req.decoded;
+            if (decoded.email !== req.query.email) {
+                res.status(401).send({ massege: 'aunauthorized' })
+
+            }
+            console.log(decoded)
             const email = req.query.email;
             const filter = { email: email };
             const reviews = await reviewsCollection.find(filter).sort({ date: -1 }).toArray();
