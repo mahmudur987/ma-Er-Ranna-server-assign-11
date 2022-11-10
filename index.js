@@ -64,9 +64,12 @@ async function run() {
             res.send(dishes)
         });
         app.get('/alldishes', async (req, res) => {
+            const page = parseInt(req.query.page);
+            const size = parseInt(req.query.size);
             const query = {};
-            const dishes = await dishesCollection.find(query).sort({ date: -1 }).toArray();
-            res.send(dishes)
+            const dishes = await dishesCollection.find(query).sort({ date: -1 }).skip(page * size).limit(size).toArray();
+            const count = await dishesCollection.estimatedDocumentCount()
+            res.send({ dishes, count })
         });
         app.post('/dish', async (req, res) => {
             const newdish = req.body;
